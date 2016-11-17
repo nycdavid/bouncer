@@ -7,17 +7,13 @@ import (
 	"net/http"
 	"os"
 
+	_ "github.com/bmizerany/pq"
 	"github.com/labstack/echo"
 )
 
-var db
-
 func main() {
 	port := os.Getenv("PORT")
-  db, err := sql.Open("postgres", "user=postgres dbname=bouncer_dev")
-  if err != nil {
-    log.Fatal(err)
-  }
+
 	e := echo.New()
 	e.GET("/", PostHandler)
 
@@ -27,6 +23,11 @@ func main() {
 }
 
 func PostHandler(ctx echo.Context) error {
-  rows, _ := db.Query("select count(*) from products")
-	return ctx.String(http.StatusOK, string(rows))
+	db, err := sql.Open("postgres", "user=postgres dbname=bouncer_dev")
+	if err != nil {
+		log.Fatal(err)
+	}
+	rows, _ := db.Query("select count(*) from products")
+	fmt.Println(rows)
+	return ctx.String(http.StatusOK, "Hello world!")
 }
