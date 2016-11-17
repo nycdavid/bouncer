@@ -13,7 +13,6 @@ import (
 
 func main() {
 	port := os.Getenv("PORT")
-
 	e := echo.New()
 	e.GET("/", PostHandler)
 
@@ -23,11 +22,22 @@ func main() {
 }
 
 func PostHandler(ctx echo.Context) error {
-	db, err := sql.Open("postgres", "user=postgres dbname=bouncer_dev")
+	db, err := sql.Open("postgres", "user=postgres port=32768 dbname=bouncer_dev sslmode=disable")
 	if err != nil {
 		log.Fatal(err)
 	}
-	rows, _ := db.Query("select count(*) from products")
-	fmt.Println(rows)
+	err = db.Ping()
+	if err != nil {
+		log.Fatal(err)
+	}
+	rows, _ := db.Query("select * from products")
+	defer rows.Close()
+	var id int
+	var name string
+	for rows.Next() {
+		err = rows.Scan(&id, &name)
+	}
+	fmt.Println(id)
+	fmt.Println(string(name))
 	return ctx.String(http.StatusOK, "Hello world!")
 }
