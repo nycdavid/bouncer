@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"database/sql"
 	"encoding/json"
 	"fmt"
@@ -46,6 +47,19 @@ func PostHandler(ctx echo.Context) error {
 	var rb ReqBody
 	d := json.NewDecoder(ctx.Request().Body)
 	d.Decode(&rb)
+
+	var sqlBuffer bytes.Buffer
+	sqlBuffer.WriteString("select count(*) from products where id in (")
+	for i := 0; i < len(rb.Ids); i++ {
+		id := rb.Ids[i]
+		if i == len(rb.Ids)-1 {
+			sqlBuffer.WriteString(fmt.Sprintf("%v", id))
+		} else {
+			sqlBuffer.WriteString(fmt.Sprintf("%v, ", id))
+		}
+	}
+	sqlBuffer.WriteString(")")
+	fmt.Println(sqlBuffer.String())
 
 	return ctx.String(http.StatusOK, "Hello world!")
 }
