@@ -42,10 +42,10 @@ func PostHandler(ctx echo.Context) error {
 	// for rows.Next() {
 	// 	err = rows.Scan(&id, &name)
 	// }
+
 	var rb ReqBody
 	d := json.NewDecoder(ctx.Request().Body)
 	d.Decode(&rb)
-	fmt.Println(rb.Ids)
 
 	return ctx.String(http.StatusOK, "Hello world!")
 }
