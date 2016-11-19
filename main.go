@@ -17,6 +17,10 @@ type ReqBody struct {
 	Ids []int `json:"ids"`
 }
 
+type RespBody struct {
+	MatchedCount int `json:"matchedCount"`
+}
+
 var db *sql.DB
 var err error
 
@@ -66,7 +70,9 @@ func PostHandler(ctx echo.Context) error {
 	for rows.Next() {
 		err = rows.Scan(&id)
 	}
-	fmt.Println(id)
+	respBody := RespBody{
+		MatchedCount: id,
+	}
 
-	return ctx.String(http.StatusOK, "Hello world!")
+	return ctx.JSON(http.StatusOK, &respBody)
 }
