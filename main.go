@@ -17,18 +17,15 @@ type ReqBody struct {
 	Ids []int `json:"ids"`
 }
 
+var db *sql.DB
+var err error
+
 func main() {
 	port := os.Getenv("PORT")
 	e := echo.New()
-	e.POST("/", PostHandler)
 
-	if err := e.Start(fmt.Sprintf(":%v", port)); err != nil {
-		e.Logger.Fatal(err.Error())
-	}
-}
-
-func PostHandler(ctx echo.Context) error {
-	db, err := sql.Open("postgres", "user=postgres port=32768 dbname=bouncer_dev sslmode=disable")
+	// DB connection
+	db, err = sql.Open("postgres", "user=postgres port=32768 dbname=bouncer_dev sslmode=disable")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -36,14 +33,14 @@ func PostHandler(ctx echo.Context) error {
 	if err != nil {
 		log.Fatal(err)
 	}
-	// rows, _ := db.Query("select * from products")
-	// defer rows.Close()
-	// var id int
-	// var name string
-	// for rows.Next() {
-	// 	err = rows.Scan(&id, &name)
-	// }
 
+	e.POST("/", PostHandler)
+	if err := e.Start(fmt.Sprintf(":%v", port)); err != nil {
+		e.Logger.Fatal(err.Error())
+	}
+}
+
+func PostHandler(ctx echo.Context) error {
 	var rb ReqBody
 	d := json.NewDecoder(ctx.Request().Body)
 	d.Decode(&rb)
@@ -59,7 +56,17 @@ func PostHandler(ctx echo.Context) error {
 		}
 	}
 	sqlBuffer.WriteString(")")
-	fmt.Println(sqlBuffer.String())
+
+	rows, err := db.Query(sqlBuffer.String())
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer rows.Close()
+	var id int
+	for rows.Next() {
+		err = rows.Scan(&id)
+	}
+	fmt.Println(id)
 
 	return ctx.String(http.StatusOK, "Hello world!")
 }
