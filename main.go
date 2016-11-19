@@ -18,7 +18,8 @@ type ReqBody struct {
 }
 
 type RespBody struct {
-	MatchedCount int `json:"matchedCount"`
+	MatchedCount int      `json:"matchedCount"`
+	MatchedIds   []string `json:"matchedIds"`
 }
 
 var db *sql.DB
@@ -66,9 +67,9 @@ func PostHandler(ctx echo.Context) error {
 		log.Fatal(err)
 	}
 	defer rows.Close()
-	var id int
+	var matchedCount int
 	for rows.Next() {
-		err = rows.Scan(&id)
+		err = rows.Scan(&matchedCount)
 	}
 	respBody := RespBody{
 		MatchedCount: id,
