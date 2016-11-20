@@ -18,8 +18,12 @@ type ReqBody struct {
 }
 
 type RespBody struct {
-	MatchedCount int      `json:"matchedCount"`
-	MatchedIds   []string `json:"matchedIds"`
+	MatchedCount int   `json:"matchedCount"`
+	MatchedIds   []int `json:"matchedIds"`
+}
+
+type SQLQueryer interface {
+	ExecQuery(string) (map[string]interface{}, error)
 }
 
 var db *sql.DB
@@ -51,7 +55,7 @@ func PostHandler(ctx echo.Context) error {
 	d.Decode(&rb)
 
 	var sqlBuffer bytes.Buffer
-	sqlBuffer.WriteString("select count(*) from products where id in (")
+	sqlBuffer.WriteString("select id from products where id in (")
 	for i := 0; i < len(rb.Ids); i++ {
 		id := rb.Ids[i]
 		if i == len(rb.Ids)-1 {
@@ -67,12 +71,20 @@ func PostHandler(ctx echo.Context) error {
 		log.Fatal(err)
 	}
 	defer rows.Close()
-	var matchedCount int
+	var matchedIds []int
+
 	for rows.Next() {
-		err = rows.Scan(&matchedCount)
+		var id int
+		err = rows.Scan(&id)
+		if err != nil {
+			log.Fatal(err)
+		}
+		matchedIds = append(matchedIds, id)
 	}
+
 	respBody := RespBody{
-		MatchedCount: id,
+		MatchedCount: len(matchedIds),
+		MatchedIds:   matchedIds,
 	}
 
 	return ctx.JSON(http.StatusOK, &respBody)
