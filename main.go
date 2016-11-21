@@ -26,13 +26,46 @@ type QuerySender interface {
 	QuerySend(string) (map[string]interface{}, error)
 }
 
-type PGSender struct {}
+// PGSender methods
+type PGSender struct {
+	Dbo *sql.DB
+}
 
 func (pgs PGSender) QuerySend(string) (map[string]interface{}, error) {
+  // rows, err := db.Query(sqlBuffer.String())
+	// if err != nil {
+	// 	log.Fatal(err)
+	// }
+	// defer rows.Close()
+  //
+	// for rows.Next() {
+	// 	var id int
+	// 	err = rows.Scan(&id)
+	// 	if err != nil {
+	// 		log.Fatal(err)
+	// 	}
+	// 	matchedIds = append(matchedIds, id)
+	// }
+}
 
+func ConstructQuery([]int) string {
+	var sqlBuffer bytes.Buffer
+	sqlBuffer.WriteString("select id from products where id in (")
+	for i := 0; i < len(rb.Ids); i++ {
+		id := rb.Ids[i]
+		if i == len(rb.Ids)-1 {
+			sqlBuffer.WriteString(fmt.Sprintf("%v", id))
+		} else {
+			sqlBuffer.WriteString(fmt.Sprintf("%v, ", id))
+		}
+	}
+	sqlBuffer.WriteString(")")
+
+	return sqlBuffer.String(), nil
 }
 
 var db *sql.DB
+var pgSender PGSender
 var err error
 
 func main() {
@@ -41,6 +74,9 @@ func main() {
 
 	// DB connection
 	db, err = sql.Open("postgres", "user=postgres port=32768 dbname=bouncer_dev sslmode=disable")
+  pgSender = PGSender{
+    Dbo: db
+  }
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -57,47 +93,17 @@ func main() {
 
 func PostHandler(ctx echo.Context) error {
 	var rb ReqBody
-  var matchedIds []int
+	var matchedIds []int
 
 	d := json.NewDecoder(ctx.Request().Body)
 	d.Decode(&rb)
-
-  var sqlBuffer bytes.Buffer
-  sqlBuffer.WriteString("select id from products where id in (")
-	for i := 0; i < len(rb.Ids); i++ {
-		id := rb.Ids[i]
-		if i == len(rb.Ids)-1 {
-			sqlBuffer.WriteString(fmt.Sprintf("%v", id))
-		} else {
-			sqlBuffer.WriteString(fmt.Sprintf("%v, ", id))
-		}
-	}
-	sqlBuffer.WriteString(")")
-  sq.ExecQuery(sqlBuffer.String())
-
-	rows, err := db.Query(sqlBuffer.String())
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer rows.Close()
-
-	for rows.Next() {
-		var id int
-		err = rows.Scan(&id)
-		if err != nil {
-			log.Fatal(err)
-		}
-		matchedIds = append(matchedIds, id)
-	}
+	sqlString := constructQuery(rb.Ids)
+  aggInfo, _ := pgSender.QuerySend(sqlString)
 
 	respBody := RespBody{
-		MatchedCount: len(matchedIds),
-		MatchedIds:   matchedIds,
+		MatchedCount: aggInfo["matchedCount"],
+		MatchedIds:   aggInfo["matchedIds"],
 	}
 
 	return ctx.JSON(http.StatusOK, &respBody)
-}
-
-func GetMatchedRecords(sq SQLQueryer, []int Ids) map[string]interface{} {
-
 }
