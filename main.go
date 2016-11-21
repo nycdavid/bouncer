@@ -22,8 +22,14 @@ type RespBody struct {
 	MatchedIds   []int `json:"matchedIds"`
 }
 
-type SQLQueryer interface {
-	ExecQuery(string) (map[string]interface{}, error)
+type QuerySender interface {
+	QuerySend(string) (map[string]interface{}, error)
+}
+
+type PGSender struct {}
+
+func (pgs PGSender) QuerySend(string) (map[string]interface{}, error) {
+
 }
 
 var db *sql.DB
@@ -51,11 +57,13 @@ func main() {
 
 func PostHandler(ctx echo.Context) error {
 	var rb ReqBody
+  var matchedIds []int
+
 	d := json.NewDecoder(ctx.Request().Body)
 	d.Decode(&rb)
 
-	var sqlBuffer bytes.Buffer
-	sqlBuffer.WriteString("select id from products where id in (")
+  var sqlBuffer bytes.Buffer
+  sqlBuffer.WriteString("select id from products where id in (")
 	for i := 0; i < len(rb.Ids); i++ {
 		id := rb.Ids[i]
 		if i == len(rb.Ids)-1 {
@@ -65,13 +73,13 @@ func PostHandler(ctx echo.Context) error {
 		}
 	}
 	sqlBuffer.WriteString(")")
+  sq.ExecQuery(sqlBuffer.String())
 
 	rows, err := db.Query(sqlBuffer.String())
 	if err != nil {
 		log.Fatal(err)
 	}
 	defer rows.Close()
-	var matchedIds []int
 
 	for rows.Next() {
 		var id int
@@ -88,4 +96,8 @@ func PostHandler(ctx echo.Context) error {
 	}
 
 	return ctx.JSON(http.StatusOK, &respBody)
+}
+
+func GetMatchedRecords(sq SQLQueryer, []int Ids) map[string]interface{} {
+
 }

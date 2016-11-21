@@ -5,3 +5,5 @@
 their presence in a database, leveraging the speed and efficiency of a MySQL/Postgres
 server.
 * Written with Go, Echo (v3) and Postgres.
+
+## Structs for Mocks and testing
