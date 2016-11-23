@@ -6,4 +6,7 @@ their presence in a database, leveraging the speed and efficiency of a MySQL/Pos
 server.
 * Written with Go, Echo (v3) and Postgres.
 
-## Structs for Mocks and testing
+## 11/23/16
+- [ ] Figure out why test is panicking
+  * Seems to be related to the call to `db.Query()` when the database connection
+  object is embedded in the struct.

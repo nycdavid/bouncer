@@ -34,25 +34,25 @@ type PGSender struct {
 
 func (pgs PGSender) QuerySend(sql string) (map[string]interface{}, error) {
 	var aggInfo map[string]interface{}
-	var matchedIds []int
+	// var matchedIds []int
 
-	rows, err := pgs.Dbo.Query(sql)
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer rows.Close()
-
-	for rows.Next() {
-		var id int
-		err = rows.Scan(&id)
-		if err != nil {
-			log.Fatal(err)
-		}
-		matchedIds = append(matchedIds, id)
-	}
-
-	aggInfo["matchedCount"] = len(matchedIds)
-	aggInfo["matchedIds"] = matchedIds
+	// _, _ = pgs.Dbo.Query(sql)
+	// if err != nil {
+	// 	log.Fatal(err)
+	// }
+	// defer rows.Close()
+	//
+	// for rows.Next() {
+	// 	var id int
+	// 	err = rows.Scan(&id)
+	// 	if err != nil {
+	// 		log.Fatal(err)
+	// 	}
+	// 	matchedIds = append(matchedIds, id)
+	// }
+	//
+	// aggInfo["matchedCount"] = len(matchedIds)
+	// aggInfo["matchedIds"] = matchedIds
 	return aggInfo, nil
 }
 
@@ -82,6 +82,7 @@ func main() {
 
 	// DB connection
 	db, err = sql.Open("postgres", "user=postgres port=32768 dbname=bouncer_dev sslmode=disable")
+	_, _ = db.Query("select * from products")
 	pgSender = PGSender{
 		Dbo: db,
 	}
@@ -103,12 +104,15 @@ func PostHandler(ctx echo.Context) error {
 	d := json.NewDecoder(ctx.Request().Body())
 	d.Decode(&rb)
 	sqlString := ConstructQuery(rb.Ids)
-	aggInfo, _ := pgSender.QuerySend(sqlString)
-
-	respBody := RespBody{
-		MatchedCount: aggInfo["matchedCount"].(int),
-		MatchedIds:   aggInfo["matchedIds"].([]int),
-	}
-
-	return ctx.JSON(http.StatusOK, &respBody)
+	_, _ = pgSender.QuerySend(sqlString)
+	// fmt.Println(aggInfo)
+	//
+	// respBody := RespBody{
+	// 	MatchedCount: aggInfo["matchedCount"].(int),
+	// 	MatchedIds:   aggInfo["matchedIds"].([]int),
+	// }
+	// fmt.Println(respBody)
+	//
+	// return ctx.JSON(http.StatusOK, &respBody)
+	return ctx.String(http.StatusOK, "foo")
 }
