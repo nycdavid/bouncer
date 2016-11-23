@@ -23,10 +23,6 @@ type RespBody struct {
 	MatchedIds   []int `json:"matchedIds"`
 }
 
-type QuerySender interface {
-	QuerySend(string) (map[string]interface{}, error)
-}
-
 // PGSender methods
 type PGSender struct {
 	Dbo *sql.DB
@@ -104,7 +100,11 @@ func PostHandler(ctx echo.Context) error {
 	d := json.NewDecoder(ctx.Request().Body())
 	d.Decode(&rb)
 	sqlString := ConstructQuery(rb.Ids)
-	_, _ = pgSender.QuerySend(sqlString)
+	fmt.Println(sqlString)
+	rows, _ := db.Query(sqlString)
+	fmt.Println(rows)
+	defer rows.Close()
+	// _, _ = pgSender.QuerySend(sqlString)
 	// fmt.Println(aggInfo)
 	//
 	// respBody := RespBody{
