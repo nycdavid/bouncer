@@ -7,7 +7,6 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/labstack/echo"
 	"github.com/labstack/echo/engine/standard"
 )
 
@@ -15,12 +14,12 @@ type MockConn struct {
 }
 
 func (mc MockConn) ExecQuery(string) (map[string]interface{}, error) {
-  // some dummy code
+	// some dummy code
 }
 
 func TestPostReturnsMatchedCount(t *testing.T) {
 	reqBody := `{ "ids": [1, 3, 4] }`
-  web := New(MockConn{})
+	web := New(MockConn{})
 	req, err := http.NewRequest("POST", "/", strings.NewReader(reqBody))
 	if err != nil {
 		log.Fatal(err)
