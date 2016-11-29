@@ -15,5 +15,9 @@ server.
 * The test seems like it was panicking because `database/sql` needed a db connection.
 * Had to switch over to the testing tools provided by the Echo team.
 
-- [ ] Have `web.go` instantiate a `PGConn` struct that has a live PG connection
+- [x] Have `web.go` instantiate a `PGConn` struct that has a live PG connection
 to query with as an attribute
+
+## 11/29/16
+* How do we get the Post handler function to gain access to the db connection without
+having to make multiple connections to PG?

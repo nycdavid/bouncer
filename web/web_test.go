@@ -23,7 +23,7 @@ func TestPostReturnsMatchedCount(t *testing.T) {
 	rec := test.NewResponseRecorder()
 	req := test.NewRequest("POST", "/", nil)
 	web := New(MockConn{})
-	web.NewContext(req, rec)
+	web.Ech.NewContext(req, rec)
 	deco := json.NewDecoder(rec.Body)
 	err := deco.Decode(&respBody)
 	if err != nil {
