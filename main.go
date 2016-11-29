@@ -18,11 +18,6 @@ type ReqBody struct {
 	Ids []int `json:"ids"`
 }
 
-type RespBody struct {
-	MatchedCount int   `json:"matchedCount"`
-	MatchedIds   []int `json:"matchedIds"`
-}
-
 // PGSender methods
 type PGSender struct {
 	Dbo *sql.DB

@@ -14,3 +14,6 @@ server.
 ## 11/28/16
 * The test seems like it was panicking because `database/sql` needed a db connection.
 * Had to switch over to the testing tools provided by the Echo team.
+
+- [ ] Have `web.go` instantiate a `PGConn` struct that has a live PG connection
+to query with as an attribute
