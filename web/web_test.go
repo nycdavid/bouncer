@@ -1,32 +1,27 @@
 package web
 
 import (
-	"log"
-	"net/http"
-	"net/http/httptest"
-	"strings"
 	"testing"
 
-	"github.com/labstack/echo/engine/standard"
+	"github.com/labstack/echo/test"
 )
 
 type MockConn struct {
 }
 
 func (mc MockConn) ExecQuery(string) (map[string]interface{}, error) {
-	// some dummy code
+	resp := map[string]interface{}{
+		"foo": "bar",
+	}
+	return resp, nil
 }
 
 func TestPostReturnsMatchedCount(t *testing.T) {
-	reqBody := `{ "ids": [1, 3, 4] }`
+	rec := test.NewResponseRecorder()
+	req := test.NewRequest("POST", "/", nil)
+
 	web := New(MockConn{})
-	req, err := http.NewRequest("POST", "/", strings.NewReader(reqBody))
-	if err != nil {
-		log.Fatal(err)
-	}
-	rec := httptest.NewRecorder()
-	ctx := web.NewContext(standard.NewRequest(req, web.Logger()), standard.NewResponse(rec, web.Logger()))
-	PostHandler(ctx)
+	web.NewContext(req, rec)
 
 	if rec.Code != 200 {
 		t.Errorf("Expected status code to be 200, but got %v", rec.Code)

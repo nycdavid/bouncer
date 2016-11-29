@@ -10,3 +10,7 @@ server.
 - [ ] Figure out why test is panicking
   * Seems to be related to the call to `db.Query()` when the database connection
   object is embedded in the struct.
+
+## 11/28/16
+* The test seems like it was panicking because `database/sql` needed a db connection.
+* Had to switch over to the testing tools provided by the Echo team.
