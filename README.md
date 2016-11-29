@@ -4,7 +4,7 @@
 * Bouncer is a database API server that receives an array of id's and checks for
 their presence in a database, leveraging the speed and efficiency of a MySQL/Postgres
 server.
-* Written with Go, Echo (v3) and Postgres.
+* Written with Go, Echo (v2.2.0) and Postgres.
 
 ## 11/23/16
 - [ ] Figure out why test is panicking
@@ -19,5 +19,7 @@ server.
 to query with as an attribute
 
 ## 11/29/16
-* How do we get the Post handler function to gain access to the db connection without
-having to make multiple connections to PG?
+* ~~How do we get the Post handler function to gain access to the db connection without
+having to make multiple connections to PG?~~
+
+- [ ] Test if the request is actually being made in the test by making a dead simple Post handler

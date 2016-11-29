@@ -9,6 +9,8 @@ import (
 	"gopkg.in/labstack/echo.v2"
 )
 
+var dbc dbConn
+
 type dbConn interface {
 	ExecQuery(string) (map[string]interface{}, error)
 }
@@ -19,15 +21,6 @@ type PGConn struct {
 
 type ReqBody struct {
 	Ids []int `json:"ids"`
-}
-
-func (pgc PGConn) New() PGConn {
-	dbo, err := sql.Open("postgres", "user=postgres port=32768 dbname=bouncer_dev sslmode=disable")
-	if err != nil {
-		log.Fatal(err)
-	}
-	pgc.Dbo = dbo
-	return pgc
 }
 
 func (pgc PGConn) ExecQuery(sqlString string) (map[string]interface{}, error) {
@@ -58,16 +51,12 @@ type RespBody struct {
 	MatchedIds   []int `json:"matchedIds"`
 }
 
-type Web struct {
-	Ech  *echo.Echo
-	Conn dbConn
-}
-
-func New(conn dbConn) Web {
+func New(conn dbConn) *echo.Echo {
 	ech := echo.New()
 	ech.POST("/", PostHandler)
+	dbc = conn
 
-	return Web{Ech: ech, Conn: conn}
+	return ech
 }
 
 func PostHandler(ctx echo.Context) error {
@@ -77,5 +66,14 @@ func PostHandler(ctx echo.Context) error {
 	if err != nil {
 		return err
 	}
-	return ctx.String(http.StatusOK, "Foo")
+	obj, err := dbc.ExecQuery("select * from products")
+	if err != nil {
+		return err
+	}
+	json, err := json.Marshal(obj)
+	log.Println(json)
+	if err != nil {
+		return err
+	}
+	return ctx.JSON(http.StatusOK, json)
 }
