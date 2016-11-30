@@ -27,3 +27,4 @@ having to make multiple connections to PG?~~
 ## 11/30/16
 * `rec.Body` response from the http recorder is returning some weird nonsense
 string and not the json object that we expect. `eyJtYXRjaGVkQ291bnQiOjEsIm1hdGNoZWRJZHMiOlsxLDJdfQ==`
+* Check [this out](https://damncarousel.slack.com/archives/damncarousel-internal/p1480544912000003)
