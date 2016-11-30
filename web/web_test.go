@@ -1,10 +1,11 @@
 package web
 
 import (
+	"bytes"
 	"encoding/json"
 	"testing"
 
-	"github.com/labstack/echo/test"
+	"gopkg.in/labstack/echo.v2/test"
 )
 
 type MockConn struct {
@@ -20,10 +21,14 @@ func (mc MockConn) ExecQuery(string) (map[string]interface{}, error) {
 
 func TestPostReturnsMatchedCount(t *testing.T) {
 	var respBody RespBody
+	var b bytes.Buffer
+	reqBody := ReqBody{Ids: []int{2}}
 	rec := test.NewResponseRecorder()
-	req := test.NewRequest("POST", "/", nil)
+	req := test.NewRequest("POST", "/", json.NewEncoder(b).encode(reqBody))
 	web := New(MockConn{})
-	web.NewContext(req, rec)
+	ctx := web.NewContext(req, rec)
+	PostHandler(ctx)
+
 	deco := json.NewDecoder(rec.Body)
 	err := deco.Decode(&respBody)
 	if err != nil {

@@ -3,6 +3,7 @@ package web
 import (
 	"database/sql"
 	"encoding/json"
+	"fmt"
 	"log"
 	"net/http"
 
@@ -60,9 +61,11 @@ func New(conn dbConn) *echo.Echo {
 }
 
 func PostHandler(ctx echo.Context) error {
+	fmt.Println("This is the POST")
 	var reqB ReqBody
 	deco := json.NewDecoder(ctx.Request().Body())
 	err := deco.Decode(&reqB)
+	fmt.Println(reqB)
 	if err != nil {
 		return err
 	}
