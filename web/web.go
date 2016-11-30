@@ -3,8 +3,6 @@ package web
 import (
 	"database/sql"
 	"encoding/json"
-	"fmt"
-	"log"
 	"net/http"
 
 	"gopkg.in/labstack/echo.v2"
@@ -61,11 +59,9 @@ func New(conn dbConn) *echo.Echo {
 }
 
 func PostHandler(ctx echo.Context) error {
-	fmt.Println("This is the POST")
 	var reqB ReqBody
 	deco := json.NewDecoder(ctx.Request().Body())
 	err := deco.Decode(&reqB)
-	fmt.Println(reqB)
 	if err != nil {
 		return err
 	}
@@ -74,7 +70,6 @@ func PostHandler(ctx echo.Context) error {
 		return err
 	}
 	json, err := json.Marshal(obj)
-	log.Println(json)
 	if err != nil {
 		return err
 	}

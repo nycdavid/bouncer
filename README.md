@@ -22,4 +22,8 @@ to query with as an attribute
 * ~~How do we get the Post handler function to gain access to the db connection without
 having to make multiple connections to PG?~~
 
-- [ ] Test if the request is actually being made in the test by making a dead simple Post handler
+- [x] Test if the request is actually being made in the test by making a dead simple Post handler
+
+## 11/30/16
+* `rec.Body` response from the http recorder is returning some weird nonsense
+string and not the json object that we expect. `eyJtYXRjaGVkQ291bnQiOjEsIm1hdGNoZWRJZHMiOlsxLDJdfQ==`
