@@ -33,4 +33,7 @@ string and not the json object that we expect. `eyJtYXRjaGVkQ291bnQiOjEsIm1hdGNo
 * It seems like the issue was that I was marshaling JSON and `ctx.json` was marshaling
 it again.
 
-- [ ] Deploy this to Heroku?
+- [ ] Why is the `main()` function immediately returning?
+  * Something seems broken about how I'm providing the database url, it seems like it was
+  working when it was directly placed into the `sql.Open`
+- [ ] Deploy this to Heroku

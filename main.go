@@ -12,7 +12,13 @@ import (
 
 func main() {
 	port := os.Getenv("PORT")
-	pgDbo, err := sql.Open("postgres", "user=postgres port=32768 dbname=bouncer_dev sslmode=disable")
+	var dbUrl string
+	if os.Getenv("DATABASE_URL") == "" {
+		dbUrl = "user=postgres port=32768 dbname=bouncer_dev sslmode=disable"
+	} else {
+		dbUrl = os.Getenv("DATABASE_URL")
+	}
+	pgDbo, err := sql.Open("postgres", dbUrl)
 	if err != nil {
 		log.Fatal(err)
 	}
