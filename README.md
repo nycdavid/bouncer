@@ -28,3 +28,9 @@ having to make multiple connections to PG?~~
 * `rec.Body` response from the http recorder is returning some weird nonsense
 string and not the json object that we expect. `eyJtYXRjaGVkQ291bnQiOjEsIm1hdGNoZWRJZHMiOlsxLDJdfQ==`
 * Check [this out](https://damncarousel.slack.com/archives/damncarousel-internal/p1480544912000003)
+
+## 12/1/16
+* It seems like the issue was that I was marshaling JSON and `ctx.json` was marshaling
+it again.
+
+- [ ] Deploy this to Heroku?

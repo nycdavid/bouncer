@@ -1,8 +1,11 @@
 package web
 
 import (
+	"bytes"
 	"database/sql"
 	"encoding/json"
+	"fmt"
+	"log"
 	"net/http"
 
 	"gopkg.in/labstack/echo.v2"
@@ -20,6 +23,22 @@ type PGConn struct {
 
 type ReqBody struct {
 	Ids []int `json:"ids"`
+}
+
+func ConstructQuery(reqIds []int) string {
+	var sqlBuffer bytes.Buffer
+	sqlBuffer.WriteString("select id from products where id in (")
+	for i := 0; i < len(reqIds); i++ {
+		id := reqIds[i]
+		if i == len(reqIds)-1 {
+			sqlBuffer.WriteString(fmt.Sprintf("%v", id))
+		} else {
+			sqlBuffer.WriteString(fmt.Sprintf("%v, ", id))
+		}
+	}
+	sqlBuffer.WriteString(")")
+
+	return sqlBuffer.String()
 }
 
 func (pgc PGConn) ExecQuery(sqlString string) (map[string]interface{}, error) {
@@ -63,15 +82,12 @@ func PostHandler(ctx echo.Context) error {
 	deco := json.NewDecoder(ctx.Request().Body())
 	err := deco.Decode(&reqB)
 	if err != nil {
-		return err
+		log.Fatal(err)
 	}
-	obj, err := dbc.ExecQuery("select * from products")
+	sqlString := ConstructQuery(reqB.Ids)
+	obj, err := dbc.ExecQuery(sqlString)
 	if err != nil {
-		return err
+		log.Fatal(err)
 	}
-	json, err := json.Marshal(obj)
-	if err != nil {
-		return err
-	}
-	return ctx.JSON(http.StatusOK, json)
+	return ctx.JSON(http.StatusOK, obj)
 }

@@ -3,7 +3,7 @@ package web
 import (
 	"bytes"
 	"encoding/json"
-	"io/ioutil"
+	"errors"
 	"testing"
 
 	"gopkg.in/labstack/echo.v2/test"
@@ -12,16 +12,20 @@ import (
 type MockConn struct {
 }
 
-func (mc MockConn) ExecQuery(string) (map[string]interface{}, error) {
-	resp := map[string]interface{}{
-		"matchedCount": 1,
-		"matchedIds":   []int{1, 2},
+func (mc MockConn) ExecQuery(sqlQuery string) (map[string]interface{}, error) {
+	if sqlQuery == "select id from products where id in (2)" {
+		resp := map[string]interface{}{
+			"matchedCount": 1,
+			"matchedIds":   []int{1, 2},
+		}
+		return resp, nil
+	} else {
+		return nil, errors.New("Incorrect SQL string.")
 	}
-	return resp, nil
 }
 
 func TestPostReturnsMatchedCount(t *testing.T) {
-	// var respBody RespBody
+	var respBody RespBody
 	reqBody := ReqBody{Ids: []int{2}}
 	b, err := json.Marshal(reqBody)
 	if err != nil {
@@ -33,15 +37,16 @@ func TestPostReturnsMatchedCount(t *testing.T) {
 	ctx := web.NewContext(req, rec)
 	PostHandler(ctx)
 
-	// deco := json.NewDecoder(rec.Body)
-	// err = deco.Decode(&respBody)
-	// if err != nil {
-	// 	t.Error(err)
-	// }
-
-	ra, _ := ioutil.ReadAll(rec.Body)
+	deco := json.NewDecoder(rec.Body)
+	err = deco.Decode(&respBody)
+	if err != nil {
+		t.Error(err)
+	}
 
 	if rec.Status() != 200 {
 		t.Errorf("Expected status code to be 200, but got %v", rec.Status())
+	}
+	if respBody.MatchedCount != 1 {
+		t.Errorf("Expected response MatchedCount to be 1, but got %v", respBody.MatchedCount)
 	}
 }

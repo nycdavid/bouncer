@@ -1,0 +1,6 @@
+package: github.com/nycdavid/bouncer
+import:
+- package: github.com/bmizerany/pq
+- package: gopkg.in/labstack/echo.v2
+  subpackages:
+  - engine/standard
